@@ -1,0 +1,19 @@
+classes:
+- cluster.os-ha-ovs.openstack.control
+- service.galera.master.cluster
+parameters:
+  _param:
+    keepalived_vip_priority: 103
+    linux_system_codename: xenial
+    mysql_cluster_role: master
+    opencontrail_database_id: 1
+    rabbitmq_cluster_role: master
+    salt_master_host: 192.168.10.91
+    single_address: 172.16.10.91
+  linux:
+    system:
+      name: XXX-HOSTNAME-XXX
+      domain: salt-syndic-master.bud-mk.local
+      cluster: default
+      environment: prd
+

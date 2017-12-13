@@ -1,0 +1,6 @@
+parameters:
+  salt:
+    syndic:
+      enabled: True
+      master:
+        host: 192.168.10.90
