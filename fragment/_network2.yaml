@@ -15,27 +15,27 @@ parameters:
   network01_cidr:
     type: string
     description: Private network address (CIDR notation)
-    default: 192.168.10.0/24
+    default: 192.168.10.0/23
   network01_pool_start:
     type: string
     description: Start of private network IP address allocation pool
-    default: 192.168.10.90
+    default: 192.168.10.1
   network01_pool_end:
     type: string
     description: End of private network IP address allocation pool
-    default: 192.168.10.200
+    default: 192.168.11.253
   network02_cidr:
     type: string
     description: Private network address (CIDR notation)
-    default: 172.16.10.0/24
+    default: 172.16.10.0/23
   network02_pool_start:
     type: string
     description: Start of private network IP address allocation pool
-    default: 172.16.10.90
+    default: 172.16.10.1
   network02_pool_end:
     type: string
     description: End of private network IP address allocation pool
-    default: 172.16.10.200
+    default: 172.16.11.253
 
 resources:
   key_pair:

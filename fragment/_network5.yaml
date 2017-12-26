@@ -19,7 +19,7 @@ parameters:
   network01_pool_start:
     type: string
     description: Start of private network IP address allocation pool
-    default: 192.168.10.90
+    default: 192.168.10.10
   network01_pool_end:
     type: string
     description: End of private network IP address allocation pool
@@ -31,7 +31,7 @@ parameters:
   network02_pool_start:
     type: string
     description: Start of private network IP address allocation pool
-    default: 172.16.10.90
+    default: 172.16.10.10
   network02_pool_end:
     type: string
     description: End of private network IP address allocation pool
@@ -43,7 +43,7 @@ parameters:
   network03_pool_start:
     type: string
     description: Start of private network IP address allocation pool
-    default: 10.1.0.90
+    default: 10.1.0.10
   network03_pool_end:
     type: string
     description: End of private network IP address allocation pool
@@ -55,7 +55,7 @@ parameters:
   network04_pool_start:
     type: string
     description: Start of private network IP address allocation pool
-    default: 10.16.0.90
+    default: 10.16.0.10
   network04_pool_end:
     type: string
     description: End of private network IP address allocation pool
@@ -63,11 +63,11 @@ parameters:
   network05_cidr:
     type: string
     description: Private network address (CIDR notation)
-    default: 192.168.90.0/24
+    default: 192.168.10.0/24
   network05_pool_start:
     type: string
     description: Start of private network IP address allocation pool
-    default: 192.168.90.90
+    default: 192.168.90.10
   network05_pool_end:
     type: string
     description: End of private network IP address allocation pool
