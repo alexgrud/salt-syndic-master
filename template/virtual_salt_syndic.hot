@@ -20,7 +20,7 @@ parameters:
     description: DNS nameservers to be assigned to nodes
   minion_node_count:
     type: string
-    default: 1
+    default: 20
 
   cfg_reclass_address:
     type: string
@@ -68,14 +68,14 @@ parameters:
 
 resources:
   mcp_network:
-    type: MCP::Network
+    type: MCP::Network5
     properties:
       stack_name: { get_param: "OS::stack_name" }
       key_value: { get_param: cluster_public_key }
       public_net: { get_param: cluster_public_net }
       nameservers: { get_param: cluster_nameservers }
   salt_mom:
-    type: MCP::SingleInstance
+    type: MCP::SingleInstance5
     depends_on: mcp_network
     properties:
       key_pair: { get_param: "OS::stack_name" }
@@ -83,6 +83,9 @@ resources:
       security_group: { get_attr: [mcp_network, security_group] }
       network01_prefix: { get_attr: [mcp_network, network01_prefix] }
       network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }                                                                                                                                                                        
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }                                                                                                                                                                        
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] } 
       instance_name: mom01
       instance_domain:
         list_join:
@@ -106,12 +109,15 @@ resources:
               - [ { get_param: "OS::stack_name" }, { get_param: cluster_domain } ]
             $network01_prefix: { get_attr: [mcp_network, network01_prefix] }
             $network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+            $network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+            $network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+            $network05_prefix: { get_attr: [mcp_network, network05_prefix] }
             $private_key: { get_param: cfg_reclass_key }
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
   salt_master01:
-    type: MCP::SingleInstance
+    type: MCP::SingleInstance5
     depends_on: salt_mom
     properties:
       key_pair: { get_param: "OS::stack_name" }
@@ -119,6 +125,9 @@ resources:
       security_group: { get_attr: [mcp_network, security_group] }
       network01_prefix: { get_attr: [mcp_network, network01_prefix] }
       network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
       instance_name: cfg01
       instance_domain:
         list_join:
@@ -142,12 +151,15 @@ resources:
               - [ { get_param: "OS::stack_name" }, { get_param: cluster_domain } ]
             $network01_prefix: { get_attr: [mcp_network, network01_prefix] }
             $network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+            $network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+            $network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+            $network05_prefix: { get_attr: [mcp_network, network05_prefix] }
             $private_key: { get_param: cfg_reclass_key }
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
   salt_master02:
-    type: MCP::SingleInstance
+    type: MCP::SingleInstance5
     depends_on: salt_mom
     properties:
       key_pair: { get_param: "OS::stack_name" }
@@ -155,6 +167,9 @@ resources:
       security_group: { get_attr: [mcp_network, security_group] }
       network01_prefix: { get_attr: [mcp_network, network01_prefix] }
       network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
       instance_name: cfg02
       instance_domain:
         list_join:
@@ -178,12 +193,15 @@ resources:
               - [ { get_param: "OS::stack_name" }, { get_param: cluster_domain } ]
             $network01_prefix: { get_attr: [mcp_network, network01_prefix] }
             $network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+            $network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+            $network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+            $network05_prefix: { get_attr: [mcp_network, network05_prefix] }
             $private_key: { get_param: cfg_reclass_key }
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
   salt_minions01:
-    type: MCP::StaticCluster
+    type: MCP::StaticCluster5
     depends_on: salt_master01
     properties:
       key_pair: { get_param: "OS::stack_name" }
@@ -191,6 +209,9 @@ resources:
       security_group: { get_attr: [mcp_network, security_group] }
       network01_prefix: { get_attr: [mcp_network, network01_prefix] }
       network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
       instance_name: cmp-cfg01-
       instance_count: { get_param: minion_node_count }
       instance_domain:
@@ -206,7 +227,7 @@ resources:
       instance_cloud_init: |
         # todo
   salt_minions02:
-    type: MCP::StaticCluster
+    type: MCP::StaticCluster5
     depends_on: salt_master02
     properties:
       key_pair: { get_param: "OS::stack_name" }
@@ -214,6 +235,9 @@ resources:
       security_group: { get_attr: [mcp_network, security_group] }
       network01_prefix: { get_attr: [mcp_network, network01_prefix] }
       network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
       instance_name: cmp-cfg02-
       instance_count: { get_param: minion_node_count }
       instance_domain:
