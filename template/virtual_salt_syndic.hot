@@ -20,7 +20,7 @@ parameters:
     description: DNS nameservers to be assigned to nodes
   minion_node_count:
     type: string
-    default: 20
+    default: 2
 
   cfg_reclass_address:
     type: string
@@ -158,6 +158,33 @@ resources:
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
+            $syndic_master_ip: { get_attr: [salt_mom, instance_address] }
+  salt_minions01:
+    type: MCP::StaticCluster5
+    depends_on: salt_master01
+    properties:
+      key_pair: { get_param: "OS::stack_name" }
+      network: { get_attr: [mcp_network, network] }
+      security_group: { get_attr: [mcp_network, security_group] }
+      network01_prefix: { get_attr: [mcp_network, network01_prefix] }
+      network02_prefix: { get_attr: [mcp_network, network02_prefix] }
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
+      instance_name: cmp-cfg01-
+      instance_count: { get_param: minion_node_count }
+      instance_domain:
+        list_join:
+        - '.'
+        - [ { get_param: "OS::stack_name" }, { get_param: cluster_domain } ]
+      instance_cluster: { get_param: cluster_name }
+      instance_zone: { get_param: cluster_zone }
+      instance_os: xenial
+      instance_image: ubuntu-16-04-amd64-cloudimg
+      instance_flavor: m1.small
+      instance_config_host: { get_attr: [salt_master01, instance_address] }
+      instance_cloud_init: |
+        # todo
   salt_master02:
     type: MCP::SingleInstance5
     depends_on: salt_mom
@@ -200,32 +227,7 @@ resources:
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
-  salt_minions01:
-    type: MCP::StaticCluster5
-    depends_on: salt_master01
-    properties:
-      key_pair: { get_param: "OS::stack_name" }
-      network: { get_attr: [mcp_network, network] }
-      security_group: { get_attr: [mcp_network, security_group] }
-      network01_prefix: { get_attr: [mcp_network, network01_prefix] }
-      network02_prefix: { get_attr: [mcp_network, network02_prefix] }
-      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
-      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
-      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
-      instance_name: cmp-cfg01-
-      instance_count: { get_param: minion_node_count }
-      instance_domain:
-        list_join:
-        - '.'
-        - [ { get_param: "OS::stack_name" }, { get_param: cluster_domain } ]
-      instance_cluster: { get_param: cluster_name }
-      instance_zone: { get_param: cluster_zone }
-      instance_os: xenial
-      instance_image: ubuntu-16-04-amd64-cloudimg
-      instance_flavor: m1.small
-      instance_config_host: { get_attr: [salt_master01, instance_address] }
-      instance_cloud_init: |
-        # todo
+            $syndic_master_ip: { get_attr: [salt_mom, instance_address] }
   salt_minions02:
     type: MCP::StaticCluster5
     depends_on: salt_master02
