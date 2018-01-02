@@ -64,7 +64,7 @@ parameters:
     salt_syndic_master_address: $SYNDIC_MASTER_IP
 EOF
 
-if [ -n "$SYNDIC_MASTER_IP" ];
+if [ -n "$SYNDIC_MASTER_IP" ]; then
     echo "    salt_syndic_master_address: $SYNDIC_MASTER_IP" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
 fi
 
