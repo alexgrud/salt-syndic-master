@@ -21,7 +21,6 @@ export CLUSTER_NAME=$cluster_name
 export HOSTNAME=$node_hostname
 export DOMAIN=$node_domain
 export DISTRIB_REVISION=$formula_pkg_revision
-export SYNDIC_MASTER_IP=$syndic_master_ip
 
 # set with default's if not provided at all
 export RECLASS_BRANCH=${RECLASS_BRANCH:-master}
@@ -64,8 +63,8 @@ parameters:
     salt_syndic_master_address: $SYNDIC_MASTER_IP
 EOF
 
-if [ -n "$SYNDIC_MASTER_IP" ]; then
-    echo "    salt_syndic_master_address: $SYNDIC_MASTER_IP" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
+if [ -n "$syndic_master_ip" ]; then
+    echo "    salt_syndic_master_address: $syndic_master_ip" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
 fi
 
 #bootstrap
