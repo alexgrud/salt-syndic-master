@@ -63,7 +63,7 @@ parameters:
   network05_cidr:
     type: string
     description: Private network address (CIDR notation)
-    default: 192.168.10.0/23
+    default: 192.168.90.0/23
   network05_pool_start:
     type: string
     description: Start of private network IP address allocation pool
