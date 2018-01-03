@@ -60,6 +60,8 @@ parameters:
   _param:
     infra_config_address: $node_control_ip
     infra_config_deploy_address: $node_ip
+    cluster_name: ${CLUSTER_NAME}
+    cluster_domain: ${DOMAIN:-$CLUSTER_NAME.local}
 EOF
 
 if [ -n "$syndic_master_ip" ]; then
