@@ -60,7 +60,6 @@ parameters:
   _param:
     infra_config_address: $node_control_ip
     infra_config_deploy_address: $node_ip
-    salt_syndic_master_address: $SYNDIC_MASTER_IP
 EOF
 
 if [ -n "$syndic_master_ip" ]; then
