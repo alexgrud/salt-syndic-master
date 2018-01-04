@@ -94,7 +94,7 @@ resources:
       instance_zone: { get_param: cluster_zone }
       instance_os: xenial
       instance_image: ubuntu-16-04-amd64-cloudimg
-      instance_flavor: cfg_salt_small
+      instance_flavor: m1.large20
       instance_config_host: 127.0.0.1
       instance_cloud_init:
         str_replace:
