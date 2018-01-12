@@ -81,7 +81,7 @@ aptget_wrapper() {
 
 # Set default salt version
 if [ -z "$saltversion" ]; then
-    saltversion="2016.3"
+    saltversion="2017.7"
 fi
 echo "Using Salt version $saltversion"
 
