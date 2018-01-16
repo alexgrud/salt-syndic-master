@@ -128,7 +128,7 @@ resources:
       network03_prefix: { get_attr: [mcp_network, network03_prefix] }                                                                                                                                                                        
       network04_prefix: { get_attr: [mcp_network, network04_prefix] }                                                                                                                                                                        
       network05_prefix: { get_attr: [mcp_network, network05_prefix] } 
-      instance_name: mom01
+      instance_name: mom02
       instance_domain:
         list_join:
         - '.'
