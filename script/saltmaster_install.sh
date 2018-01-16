@@ -28,6 +28,8 @@ export RECLASS_ROOT=${RECLASS_ROOT:-/srv/salt/reclass}
 export DISTRIB_REVISION=${DISTRIB_REVISION:-nightly}
 #export DEBUG=${DEBUG:-1}
 
+export SYNDIC_MASTER_IP=$syndic_master_ip
+
 # get Master IP addresses
 node_ip="$(ip a | awk -v prefix="^    inet $network01_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}')"
 node_control_ip="$(ip a | awk -v prefix="^    inet $network02_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}')"
@@ -63,12 +65,6 @@ parameters:
     cluster_name: ${CLUSTER_NAME}
     cluster_domain: ${DOMAIN:-$CLUSTER_NAME.local}
 EOF
-
-if [ -n "$syndic_master_ip" ]; then
-    echo "    salt_syndic_master_address: $syndic_master_ip" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
-else
-    echo "    salt_syndic_master_address: $config_host" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
-fi
 
 #bootstrap
 cd /srv/salt/scripts
