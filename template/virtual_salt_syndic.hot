@@ -201,6 +201,7 @@ resources:
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
             $syndic_master_ip: { get_attr: [salt_mom, instance_address] }
+            $syndic_enabled: true
   salt_minions01:
     type: MCP::StaticCluster5
     depends_on: salt_master01
