@@ -72,6 +72,16 @@ cd /srv/salt/scripts
 (set -o pipefail && MASTER_HOSTNAME=$node_hostname.$node_domain ./bootstrap.sh 2>&1 | tee /var/log/bootstrap-salt-result.log) ||\
   wait_condition_send "FAILURE" "Command \"MASTER_HOSTNAME=$node_hostname.$node_domain /srv/salt/scripts/bootstrap.sh\" failed. Output: '$(cat /var/log/bootstrap-salt-result.log)'"
 
+node_network02_ip="$(ip a | awk -v prefix="^    inet $network02_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}')"
+
+if [ -e "${RECLASS_ROOT}/classes/cluster/overrides.yml" ]; then
+    if [ -n "$SYNDIC_MASTER_IP" ]; then
+        echo "    salt_syndic_master_address: ${SYNDIC_MASTER_IP}" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
+    else
+        echo "    salt_syndic_master_address: $node_network01_ip" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
+    fi
+fi
+
 # states
 echo "Running salt master states ..."
 run_states=("linux,openssh" "reclass" "salt.master.service" "salt")
