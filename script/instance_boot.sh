@@ -186,10 +186,12 @@ node_network03_iface="$(ip a | awk -v prefix="^    inet $network03_prefix[.]" '$
 node_network04_iface="$(ip a | awk -v prefix="^    inet $network04_prefix[.]" '$0 ~ prefix {split($7, a, "/"); print a[1]}')"
 node_network05_iface="$(ip a | awk -v prefix="^    inet $network05_prefix[.]" '$0 ~ prefix {split($7, a, "/"); print a[1]}')"
 
-if [ -n "$SYNDIC_MASTER_IP" ]; then
-    echo "    salt_syndic_master_address: ${SYNDIC_MASTER_IP}" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
-else
-    echo "    salt_syndic_master_address: $node_network01_ip" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
+if [ -e "${RECLASS_ROOT}/classes/cluster/overrides.yml" ]; then
+    if [ -n "$SYNDIC_MASTER_IP" ]; then
+        echo "    salt_syndic_master_address: ${SYNDIC_MASTER_IP}" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
+    else
+        echo "    salt_syndic_master_address: $node_network01_ip" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
+    fi
 fi
 
 if [ "$node_network05_iface" != "" ]; then
