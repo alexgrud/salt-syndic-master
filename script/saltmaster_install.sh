@@ -66,6 +66,8 @@ EOF
 
 if [ -n "$syndic_master_ip" ]; then
     echo "    salt_syndic_master_address: $syndic_master_ip" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
+else
+    echo "    salt_syndic_master_address: $config_host" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
 fi
 
 #bootstrap
