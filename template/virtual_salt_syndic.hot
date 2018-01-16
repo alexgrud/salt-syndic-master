@@ -116,6 +116,7 @@ resources:
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
+            $syndic_master_ip: { get_attr: [salt_mom, instance_address] }
   salt_mom02:
     type: MCP::SingleInstance5
     depends_on: mcp_network
@@ -158,6 +159,7 @@ resources:
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
+            $syndic_master_ip: { get_attr: [salt_mom, instance_address] }
   salt_master01:
     type: MCP::SingleInstance5
     depends_on: salt_mom
