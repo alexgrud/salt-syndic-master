@@ -28,7 +28,7 @@ parameters:
     default: https://github.com/ohryhorov/mcp-virtual-lab
   cfg_reclass_branch:
     type: string
-    default: master
+    default: 2017
   cfg_reclass_key:
     type: string
     hidden: true
