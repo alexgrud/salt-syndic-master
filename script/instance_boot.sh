@@ -138,6 +138,7 @@ case "$node_os" in
 
         echo "deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/$saltversion xenial main" > /etc/apt/sources.list.d/saltstack.list
         wget -O - "https://repo.saltstack.com/apt/ubuntu/16.04/amd64/$saltversion/SALTSTACK-GPG-KEY.pub" | apt-key add - || wait_condition_send "FAILURE" "Failed to add saltstack apt key."
+        curl "https://repo.saltstack.com/apt/ubuntu/16.04/amd64/$saltversion/SALTSTACK-GPG-KEY.pub" -o /tmp/SALTSTACK-GPG-KEY.pub
 
         aptget_wrapper clean
         aptget_wrapper update
