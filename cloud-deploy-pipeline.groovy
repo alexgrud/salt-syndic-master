@@ -105,7 +105,7 @@ timeout(time: 12, unit: 'HOURS') {
 
 
             if (common.validInputParam('CLUSTER_DOMAIN')) {
-                tgt_extra = " and ${CLUSTER_DOMAIN}"
+                tgt_extra = "and ${CLUSTER_DOMAIN}"
             }
 
             //
