@@ -12,7 +12,7 @@ parameters:
     default: nova
   cluster_name:
     type: string
-    default: os-ha-ovs
+    default: os-ha-ovs-syndic
   cluster_domain:
     type: string
   cluster_nameservers:
