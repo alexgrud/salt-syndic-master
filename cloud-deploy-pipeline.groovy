@@ -104,8 +104,8 @@ timeout(time: 12, unit: 'HOURS') {
             venvPepper = "${workspace}/venvPepper"
 
 
-            if (common.validInputParam('CLUSTER_DOMAIN')) {
-                tgt_extra = "and ${CLUSTER_DOMAIN}"
+            if (common.validInputParam('EXTRA_TARGETING')) {
+                tgt_extra = "and ${EXTRA_TARGETING}"
             }
 
             //
