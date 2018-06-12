@@ -18,12 +18,12 @@ if (common.validInputParam('MOM_JOB')) {
 
 node(slave_node) {
 
-    def momBuild = [:]
+    def momBuild
     def salt_master_url
 
     try {
         stage('Deploy MoM stack'){
-            momBuild[deployMoMJob] = build job: deployMoMJob, propagate: false, parameters: [
+            momBuild = build job: deployMoMJob, propagate: false, parameters: [
                 [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: 'testing'],
                 [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: 'virtual-mcp11-aio'],
                 [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'mom'],
@@ -38,10 +38,12 @@ node(slave_node) {
                 [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: slave_node],
             ]
 
-            // get salt master url
-            salt_master_url = "http://${momBuild.description.tokenize(' ')[1]}:6969"
-            node_name = "${momBuild.description.tokenize(' ')[2]}"
-            common.infoMsg("Salt API is accessible via ${salt_master_url}")
+            if (momBuild) {
+                // get salt master url
+                salt_master_url = "http://${momBuild.description.tokenize(' ')[1]}:6969"
+                node_name = "${momBuild.description.tokenize(' ')[2]}"
+                common.infoMsg("Salt API is accessible via ${salt_master_url}")
+            }
 
         }
 
