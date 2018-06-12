@@ -170,5 +170,6 @@ resources:
 outputs:
   salt_master_ip:
     value: { get_attr: [salt_mom01, instance_public_address] }
+  salt_master_ip_02:
     value: { get_attr: [salt_mom02, instance_public_address] }
     description: "Public IP addresses of the Salt master of masters nodes"
