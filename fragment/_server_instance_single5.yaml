@@ -59,6 +59,15 @@ parameters:
   instance_cloud_init:
     type: string
     default: ""
+  cfg_bootstrap_extra_repo_params:
+    type: string
+    default: ''
+  cfg_formula_pkg_revision:
+    type: string
+    default: 'nightly'
+  cfg_saltversion:
+    type: string
+    default: "stable 2016.3"
 
 resources:
   instance_port01:
@@ -143,6 +152,9 @@ resources:
             $network05_prefix: { get_param: network05_prefix }
             $instance_cloud_init: { get_param: instance_cloud_init }
             $wait_condition_notify: { get_attr: [ instance_wait_handle, curl_cli ] }
+            $bootstrap_extra_repo_params: { get_param: cfg_bootstrap_extra_repo_params }
+            $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
+            $saltversion: { get_param: cfg_saltversion }
   floating_ip:
     type: OS::Nova::FloatingIP
     properties:

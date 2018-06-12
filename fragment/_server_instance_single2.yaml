@@ -46,6 +46,9 @@ parameters:
   instance_cloud_init:
     type: string
     default: ""
+  cfg_saltversion:
+    type: string
+    default: "stable 2016.3"
 
 resources:
   instance_port01:
@@ -97,6 +100,7 @@ resources:
             $node_domain: { get_param: instance_domain }
             $cluster_name: { get_param: instance_cluster }
             $config_host: { get_param: instance_config_host }
+            $saltversion: { get_param: cfg_saltversion }
             $network01_prefix: { get_param: network01_prefix }
             $network02_prefix: { get_param: network02_prefix }
 
