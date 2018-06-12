@@ -11,7 +11,7 @@
 
 
 export BOOTSTRAP_SCRIPT_URL=$bootstrap_script_url
-export BOOTSTRAP_SCRIPT_URL=${BOOTSTRAP_SCRIPT_URL:-https://raw.githubusercontent.com/ohryhorov/salt-formulas-scripts/master/bootstrap.sh}
+export BOOTSTRAP_SCRIPT_URL=${BOOTSTRAP_SCRIPT_URL:-https://raw.githubusercontent.com/salt-formulas/salt-formulas-scripts/master/bootstrap.sh}
 
 # inherit heat variables
 export RECLASS_ADDRESS=$reclass_address
@@ -21,19 +21,17 @@ export CLUSTER_NAME=$cluster_name
 export HOSTNAME=$node_hostname
 export DOMAIN=$node_domain
 export DISTRIB_REVISION=$formula_pkg_revision
-
+export EXTRA_FORMULAS="$extra_formulas"
 # set with default's if not provided at all
 export RECLASS_BRANCH=${RECLASS_BRANCH:-master}
 export RECLASS_ROOT=${RECLASS_ROOT:-/srv/salt/reclass}
 export DISTRIB_REVISION=${DISTRIB_REVISION:-nightly}
 #export DEBUG=${DEBUG:-1}
-
-export SYNDIC_MASTER_IP=$syndic_master_ip
-export SYNDIC_ENABLED=$syndic_enabled
+export BOOTSTRAP_SALTSTACK_VERSION="$saltversion"
 
 # get Master IP addresses
-node_ip="$(ip a | awk -v prefix="^    inet $network01_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}')"
-node_control_ip="$(ip a | awk -v prefix="^    inet $network02_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}')"
+node_ip="$(ip a | awk -v prefix="^    inet $network01_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}'| head -1)"
+node_control_ip="$(ip a | awk -v prefix="^    inet $network02_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}'| head -1)"
 export MASTER_IP=$node_ip
 
 # setup private key
@@ -63,24 +61,12 @@ parameters:
   _param:
     infra_config_address: $node_control_ip
     infra_config_deploy_address: $node_ip
-    cluster_name: ${CLUSTER_NAME}
-    cluster_domain: ${DOMAIN:-$CLUSTER_NAME.local}
 EOF
 
 #bootstrap
 cd /srv/salt/scripts
 (set -o pipefail && MASTER_HOSTNAME=$node_hostname.$node_domain ./bootstrap.sh 2>&1 | tee /var/log/bootstrap-salt-result.log) ||\
   wait_condition_send "FAILURE" "Command \"MASTER_HOSTNAME=$node_hostname.$node_domain /srv/salt/scripts/bootstrap.sh\" failed. Output: '$(cat /var/log/bootstrap-salt-result.log)'"
-
-node_network01_ip="$(ip a | awk -v prefix="^    inet $network01_prefix[.]" '$0 ~ prefix {split($2, a, "/"); print a[1]}')"
-
-if [ -e "${RECLASS_ROOT}/classes/cluster/overrides.yml" ]; then
-    if [ -n "$SYNDIC_MASTER_IP" ]; then
-        echo "    salt_syndic_master_address: ${SYNDIC_MASTER_IP}" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
-    else
-        echo "    salt_syndic_master_address: $node_network01_ip" >> ${RECLASS_ROOT}/classes/cluster/overrides.yml
-    fi
-fi
 
 # states
 echo "Running salt master states ..."
@@ -91,4 +77,3 @@ do
 done
 
 salt-call saltutil.sync_all
-
