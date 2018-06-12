@@ -1,4 +1,18 @@
 /*
+    {
+        edge_cloud: {
+            deploy_job_name: 'Deploy - os_ha_ovs heat',
+            properties: {
+                HEAT_STACK_ZONE: '',
+                OPENSTACK_API_PROJECT: '',
+                SLAVE_NODE: '',
+                STACK_INSTALL: '',
+                STACK_TEMPLATE: '',
+                STACK_TYPE: ''
+            }
+        }
+    }
+
  *
  *
  */
@@ -20,10 +34,34 @@ node(slave_node) {
 
     def momBuild
     def salt_master_url
+    def deploy_edges = [:]
+    def edgeBuilds = [:]
+    def props
+
+/*    {
+        edge_cloud: {
+            deploy_job_name: 'Deploy - os_ha_ovs heat',
+            properties: {
+                HEAT_STACK_ZONE: 'mcp-oscore',
+                OPENSTACK_API_PROJECT: 'mcp-oscore',
+                SLAVE_NODE: 'python',
+                STACK_INSTALL: 'core',
+                STACK_TEMPLATE: 'os_ha_ovs',
+                STACK_TYPE: 'heat',
+                FORMULA_PKG_REVISION: 'testing',
+                STACK_DELETE: false
+            }
+        }
+    }
+*/
+//    def EDGE_DEPLOY_SCHEMAS = '{edge_cloud: {deploy_job_name: "Deploy - os_ha_ovs heat", properties: {HEAT_STACK_ZONE: "mcp-oscore", OPENSTACK_API_PROJECT: "mcp-oscore", SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false}}, edge_cloud1: {deploy_job_name: "deploy job name1", properties: {property: "property1"}} }'
+    def EDGE_DEPLOY_SCHEMAS = '{edge_cloud: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {HEAT_STACK_ZONE: "mcp-oscore", OPENSTACK_API_PROJECT: "mcp-oscore", SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false}} }'
+
+    def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
     try {
         stage('Deploy MoM stack'){
-            momBuild = build job: deployMoMJob, propagate: false, parameters: [
+/*            momBuild = build job: deployMoMJob, propagate: false, parameters: [
                 [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: 'testing'],
                 [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: 'virtual-mcp11-aio'],
                 [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'mom'],
@@ -44,6 +82,38 @@ node(slave_node) {
                 node_name = "${momBuild.description.tokenize(' ')[2]}"
                 common.infoMsg("Salt API is accessible via ${salt_master_url}")
             }
+*/
+        }
+        stage('Deploy edge clouds'){
+            for (edge_deploy_schema in edge_deploy_schemas.keySet()) {
+
+                common.infoMsg("edge cloud: ${edge_deploy_schema}")
+                common.infoMsg("deploy job name: ${edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']}")
+
+                props = edge_deploy_schemas[edge_deploy_schema]['properties']
+
+//                for (prop in edge_deploy_schemas[edge_deploy_schema]['properties'].keySet()) {
+//                    common.infoMsg("prop: ${prop} value: ${edge_deploy_schemas[edge_deploy_schema]['properties'][prop]}")
+//                }
+
+                deploy_edges["Deploy ${edge_deploy_schema}"] = {
+                    node(slave_node) {
+                        edgeBuilds["${edge_deploy_schema}-${props['STACK_TEMPLATE']}"] = build job: edge_deploy_schemas[edge_deploy_schema]['deploy_job_name'], propagate: false, parameters: [
+                            [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: props['HEAT_STACK_ZONE']],
+                            [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: props['OPENSTACK_API_PROJECT']],
+                            [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: props['SLAVE_NODE']],
+                            [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: props['STACK_INSTALL']],
+                            [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: props['STACK_TEMPLATE']],
+                            [$class: 'StringParameterValue', name: 'STACK_TYPE', value: props['STACK_TYPE']],
+                            [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props['FORMULA_PKG_REVISION']],
+                            [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: props['STACK_DELETE'].toBoolean()],
+                        ]
+                    }
+                }
+
+            }
+
+            parallel deploy_edges
 
         }
 

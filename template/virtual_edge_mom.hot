@@ -168,9 +168,7 @@ resources:
             $saltversion: { get_param: cfg_saltversion }
 
 outputs:
-  salt_mom01_ip:
+  salt_master_ip:
     value: { get_attr: [salt_mom01, instance_public_address] }
-    description: "Public IP address of the Salt master of masters node_01"
-  salt_mom02_ip:
     value: { get_attr: [salt_mom02, instance_public_address] }
-    description: "Public IP address of the Salt master of masters node_02"
+    description: "Public IP addresses of the Salt master of masters nodes"
