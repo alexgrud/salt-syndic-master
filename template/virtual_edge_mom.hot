@@ -12,7 +12,7 @@ parameters:
     default: nova
   cluster_name:
     type: string
-    default: os-ha-ovs-syndic
+    default: virtual-mcp11-aio
   cluster_domain:
     type: string
   cluster_nameservers:
@@ -24,10 +24,11 @@ parameters:
 
   cfg_reclass_address:
     type: string
-    default: https://github.com/ohryhorov/mcp-virtual-lab
+    default: https://gerrit.mcp.mirantis.net/salt-models/mcp-virtual-aio
+#    default: https://gerrit.mcp.mirantis.net/salt-models/mcp-virtual-lab
   cfg_reclass_branch:
     type: string
-    default: master
+    default: stable/queens
   cfg_reclass_key:
     type: string
     hidden: true
@@ -65,6 +66,9 @@ parameters:
   cfg_formula_pkg_revision:
     type: string
     default: nightly
+  cfg_saltversion:
+    type: string
+    default: 'stable 2016.3'
 
 resources:
   mcp_network:
@@ -97,6 +101,7 @@ resources:
       instance_image: ubuntu-16-04-amd64-cloudimg
       instance_flavor: m1.large20
       instance_config_host: 127.0.0.1
+      cfg_saltversion: { get_param: cfg_saltversion }
       instance_cloud_init:
         str_replace:
           template: { get_file: ../script/saltmaster_install.sh }
@@ -116,6 +121,7 @@ resources:
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
+            $saltversion: { get_param: cfg_saltversion }
   salt_mom02:
     type: MCP::SingleInstance5
     depends_on: mcp_network
@@ -139,6 +145,7 @@ resources:
       instance_image: ubuntu-16-04-amd64-cloudimg
       instance_flavor: m1.large20
       instance_config_host: 127.0.0.1
+      cfg_saltversion: { get_param: cfg_saltversion }
       instance_cloud_init:
         str_replace:
           template: { get_file: ../script/saltmaster_install.sh }
@@ -158,6 +165,7 @@ resources:
             $reclass_address: { get_param: cfg_reclass_address }
             $reclass_branch: { get_param: cfg_reclass_branch }
             $formula_pkg_revision: { get_param: cfg_formula_pkg_revision }
+            $saltversion: { get_param: cfg_saltversion }
 
 outputs:
   salt_mom01_ip:

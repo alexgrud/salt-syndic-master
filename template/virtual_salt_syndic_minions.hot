@@ -83,9 +83,9 @@ resources:
       security_group: { get_attr: [mcp_network, security_group] }
       network01_prefix: { get_attr: [mcp_network, network01_prefix] }
       network02_prefix: { get_attr: [mcp_network, network02_prefix] }
-      network03_prefix: { get_attr: [mcp_network, network03_prefix] }                                                                                                                                                                        
-      network04_prefix: { get_attr: [mcp_network, network04_prefix] }                                                                                                                                                                        
-      network05_prefix: { get_attr: [mcp_network, network05_prefix] } 
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
       instance_name: mom01
       instance_domain:
         list_join:
@@ -125,9 +125,9 @@ resources:
       security_group: { get_attr: [mcp_network, security_group] }
       network01_prefix: { get_attr: [mcp_network, network01_prefix] }
       network02_prefix: { get_attr: [mcp_network, network02_prefix] }
-      network03_prefix: { get_attr: [mcp_network, network03_prefix] }                                                                                                                                                                        
-      network04_prefix: { get_attr: [mcp_network, network04_prefix] }                                                                                                                                                                        
-      network05_prefix: { get_attr: [mcp_network, network05_prefix] } 
+      network03_prefix: { get_attr: [mcp_network, network03_prefix] }
+      network04_prefix: { get_attr: [mcp_network, network04_prefix] }
+      network05_prefix: { get_attr: [mcp_network, network05_prefix] }
       instance_name: mom02
       instance_domain:
         list_join:
