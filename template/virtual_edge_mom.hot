@@ -18,9 +18,9 @@ parameters:
   cluster_nameservers:
     type: comma_delimited_list
     description: DNS nameservers to be assigned to nodes
-  minion_node_count:
+  cluster_node_count:
     type: string
-    default: 2
+    default: 1
 
   cfg_reclass_address:
     type: string
