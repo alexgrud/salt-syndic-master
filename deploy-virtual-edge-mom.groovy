@@ -3,8 +3,6 @@
         edge_cloud: {
             deploy_job_name: 'Deploy - os_ha_ovs heat',
             properties: {
-                HEAT_STACK_ZONE: '',
-                OPENSTACK_API_PROJECT: '',
                 SLAVE_NODE: '',
                 STACK_INSTALL: '',
                 STACK_TEMPLATE: '',
@@ -13,7 +11,8 @@
         }
     }
 
- *
+ * OPENSTACK_API_PROJECT:
+ * HEAT_STACK_ZONE:
  *
  */
 
@@ -37,6 +36,8 @@ node(slave_node) {
     def deploy_edges = [:]
     def edgeBuilds = [:]
     def props
+    def OPENSTACK_API_PROJECT = 'mcp-oscore-ci'
+    def HEAT_STACK_ZONE = 'mcp-oscore-ci'
 
 /*    {
         edge_cloud: {
@@ -49,13 +50,14 @@ node(slave_node) {
                 STACK_TEMPLATE: 'os_ha_ovs',
                 STACK_TYPE: 'heat',
                 FORMULA_PKG_REVISION: 'testing',
+                STACK_CLUSTER_NAME: 'os-ha-ovs-syndic'
                 STACK_DELETE: false
             }
         }
     }
 */
 //    def EDGE_DEPLOY_SCHEMAS = '{edge_cloud: {deploy_job_name: "Deploy - os_ha_ovs heat", properties: {HEAT_STACK_ZONE: "mcp-oscore", OPENSTACK_API_PROJECT: "mcp-oscore", SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false}}, edge_cloud1: {deploy_job_name: "deploy job name1", properties: {property: "property1"}} }'
-    def EDGE_DEPLOY_SCHEMAS = '{edge_cloud: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {HEAT_STACK_ZONE: "mcp-oscore", OPENSTACK_API_PROJECT: "mcp-oscore", SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false}} }'
+    def EDGE_DEPLOY_SCHEMAS = '{edge_cloud: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}} }'
 
     def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
@@ -99,13 +101,16 @@ node(slave_node) {
                 deploy_edges["Deploy ${edge_deploy_schema}"] = {
                     node(slave_node) {
                         edgeBuilds["${edge_deploy_schema}-${props['STACK_TEMPLATE']}"] = build job: edge_deploy_schemas[edge_deploy_schema]['deploy_job_name'], propagate: false, parameters: [
-                            [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: props['HEAT_STACK_ZONE']],
-                            [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: props['OPENSTACK_API_PROJECT']],
+                            [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: HEAT_STACK_ZONE],
+                            [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: OPENSTACK_API_PROJECT],
                             [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: props['SLAVE_NODE']],
                             [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: props['STACK_INSTALL']],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: props['STACK_TEMPLATE']],
+                            [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: 'https://github.com/ohryhorov/salt-syndic-master'],
+                            [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
                             [$class: 'StringParameterValue', name: 'STACK_TYPE', value: props['STACK_TYPE']],
                             [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props['FORMULA_PKG_REVISION']],
+                            [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: props['STACK_CLUSTER_NAME']],
                             [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: props['STACK_DELETE'].toBoolean()],
                         ]
                     }
