@@ -32,10 +32,11 @@ if (common.validInputParam('MOM_JOB')) {
 node(slave_node) {
 
     def momBuild
-    def salt_master_url
+    def salt_mom_url
+    def deploy_edges_infra = [:]
     def deploy_edges = [:]
     def edgeBuilds = [:]
-    def props
+
     def OPENSTACK_API_PROJECT = 'mcp-oscore-ci'
     def HEAT_STACK_ZONE = 'mcp-oscore-ci'
 
@@ -57,7 +58,7 @@ node(slave_node) {
     }
 */
 //    def EDGE_DEPLOY_SCHEMAS = '{edge_cloud: {deploy_job_name: "Deploy - os_ha_ovs heat", properties: {HEAT_STACK_ZONE: "mcp-oscore", OPENSTACK_API_PROJECT: "mcp-oscore", SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false}}, edge_cloud1: {deploy_job_name: "deploy job name1", properties: {property: "property1"}} }'
-    def EDGE_DEPLOY_SCHEMAS = '{edge_cloud: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}} }'
+    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "core", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico-syndic"}} }'
 
     def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
@@ -80,7 +81,7 @@ node(slave_node) {
 
             if (momBuild != null) {
                 // get salt master url
-                salt_master_url = "http://${momBuild.description.tokenize(' ')[1]}:6969"
+                salt_mom_url = "http://${momBuild.description.tokenize(' ')[1]}:6969"
                 node_name = "${momBuild.description.tokenize(' ')[2]}"
                 common.infoMsg("Salt API is accessible via ${salt_master_url}")
             }
@@ -88,19 +89,23 @@ node(slave_node) {
         }
         stage('Deploy edge clouds'){
             for (edge_deploy_schema in edge_deploy_schemas.keySet()) {
+                def deploy_job
+                def props
+
+                deploy_job = edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']
 
                 common.infoMsg("edge cloud: ${edge_deploy_schema}")
                 common.infoMsg("deploy job name: ${edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']}")
 
                 props = edge_deploy_schemas[edge_deploy_schema]['properties']
 
-//                for (prop in edge_deploy_schemas[edge_deploy_schema]['properties'].keySet()) {
-//                    common.infoMsg("prop: ${prop} value: ${edge_deploy_schemas[edge_deploy_schema]['properties'][prop]}")
-//                }
-
-                deploy_edges["Deploy ${edge_deploy_schema}"] = {
+/*                for (prop in edge_deploy_schemas[edge_deploy_schema]['properties'].keySet()) {
+                    common.infoMsg("prop: ${prop} value: ${edge_deploy_schemas[edge_deploy_schema]['properties'][prop]}")
+                }
+*/
+                deploy_edges_infra["Deploy ${edge_deploy_schema} infra"] = {
                     node(slave_node) {
-                        edgeBuilds["${edge_deploy_schema}-${props['STACK_TEMPLATE']}"] = build job: edge_deploy_schemas[edge_deploy_schema]['deploy_job_name'], propagate: false, parameters: [
+                        edgeBuilds["${edge_deploy_schema}-${props['STACK_TEMPLATE']}"] = build job: deploy_job, propagate: false, parameters: [
                             [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: HEAT_STACK_ZONE],
                             [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: OPENSTACK_API_PROJECT],
                             [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: props['SLAVE_NODE']],
@@ -115,10 +120,24 @@ node(slave_node) {
                         ]
                     }
                 }
-
             }
 
-            parallel deploy_edges
+            parallel deploy_edges_infra
+
+            for (k in deploy_edges_infra.keySet()) {
+//                if (deploy_edges_infra[k].result == 'SUCCESS') {
+                    common.infoMsg("${deploy_edges_infra[k]} ${deploy_edges_infra[k].description.tokenize(' ')[1]}")
+/*                    deploy_edges["${deploy_edges_infra[k]} with MoM"] = {
+                        node(slave_node) {
+                        
+                        }
+                    }
+*/
+/*                } else {
+                    common.successMsg("${k} : " + testBuilds[k].result)
+                    common.errorMsg("${k} : " + testBuilds[k].result)
+                } */
+            }
 
         }
 
