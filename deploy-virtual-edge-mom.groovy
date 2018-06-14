@@ -79,7 +79,7 @@ node(slave_node) {
                 [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: slave_node],
             ]
 
-            if (momBuild != null) {
+            if (momBuild != null && momBuild.description) {
                 // get salt master url
                 salt_mom_url = "http://${momBuild.description.tokenize(' ')[1]}:6969"
                 node_name = "${momBuild.description.tokenize(' ')[2]}"

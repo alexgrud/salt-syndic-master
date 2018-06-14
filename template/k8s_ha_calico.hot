@@ -72,7 +72,7 @@ parameters:
     default: vip-kubernetes
   cfg_saltversion:
     type: string
-    default: 'stable 2016.3'
+#    default: 'stable 2016.3'
 
 resources:
   mcp_network:
@@ -102,6 +102,7 @@ resources:
       instance_image: ubuntu-16-04-amd64-cloudimg
       instance_flavor: cfg_salt_small
       instance_config_host: 127.0.0.1
+      cfg_saltversion: { get_param: cfg_saltversion }
       instance_cloud_init:
         str_replace:
           template: { get_file: ../script/saltmaster_install.sh }
@@ -153,6 +154,7 @@ resources:
       instance_os: xenial
       instance_image: ubuntu-16-04-amd64-cloudimg
       instance_flavor: k8s_ctl_medium
+      cfg_saltversion: { get_param: cfg_saltversion }
       instance_config_host: { get_attr: [mcp_salt_master, instance_address] }
       instance_cloud_init: |
         # todo
@@ -177,6 +179,7 @@ resources:
       instance_image: ubuntu-16-04-amd64-cloudimg
       instance_flavor: k8_cmp_small
       instance_config_host: { get_attr: [mcp_salt_master, instance_address] }
+      cfg_saltversion: { get_param: cfg_saltversion}
       instance_cloud_init: |
         # todo
 

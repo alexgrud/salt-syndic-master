@@ -64,7 +64,7 @@ parameters:
     type: string
   cfg_saltversion:
     type: string
-    default: "stable 2016.3"
+#    default: "stable 2016.3"
 
 resources:
   instance01:
@@ -92,6 +92,7 @@ resources:
       pool: { get_resource: pool }
       vip_host_port: { get_param: vip_host_port }
       network01_subnet: { get_param: network01_subnet }
+      cfg_saltversion: { get_param: cfg_saltversion }
   instance02:
     type: MCP::SingleBalancedInstance
     properties:
@@ -117,6 +118,7 @@ resources:
       pool: { get_resource: pool }
       vip_host_port: { get_param: vip_host_port }
       network01_subnet: { get_param: network01_subnet }
+      cfg_saltversion: { get_param: cfg_saltversion }
   instance03:
     type: MCP::SingleBalancedInstance
     properties:
@@ -142,6 +144,7 @@ resources:
       pool: { get_resource: pool }
       vip_host_port: { get_param: vip_host_port }
       network01_subnet: { get_param: network01_subnet }
+      cfg_saltversion: { get_param: cfg_saltversion }
   pool:
     type: OS::Neutron::LBaaS::Pool
     properties:
