@@ -60,6 +60,8 @@ parameters:
   instance_cloud_init:
     type: string
     default: ""
+  cfg_saltversion:
+    type: string
 
 resources:
   instance01:
@@ -88,6 +90,7 @@ resources:
       instance_boot_timeout: { get_param: instance_boot_timeout }
       instance_config_host: { get_param: instance_config_host }
       instance_cloud_init: { get_param: instance_cloud_init }
+      cfg_saltversion: { get_param: cfg_saltversion }
   instance02:
     type: MCP::SingleInstance5
     properties:
@@ -114,6 +117,7 @@ resources:
       instance_boot_timeout: { get_param: instance_boot_timeout }
       instance_config_host: { get_param: instance_config_host }
       instance_cloud_init: { get_param: instance_cloud_init }
+      cfg_saltversion: { get_param: cfg_saltversion }
   instance03:
     type: MCP::SingleInstance5
     properties:
@@ -140,3 +144,4 @@ resources:
       instance_boot_timeout: { get_param: instance_boot_timeout }
       instance_config_host: { get_param: instance_config_host }
       instance_cloud_init: { get_param: instance_cloud_init }
+      cfg_saltversion: { get_param: cfg_saltversion }

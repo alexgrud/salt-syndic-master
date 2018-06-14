@@ -43,6 +43,8 @@ parameters:
   instance_cloud_init:
     type: string
     default: ""
+  cfg_saltversion:
+    type: string
 
 resources:
   server_scale_static:
@@ -73,3 +75,4 @@ resources:
           instance_boot_timeout: { get_param: instance_boot_timeout }
           instance_config_host: { get_param: instance_config_host }
           instance_cloud_init: { get_param: instance_cloud_init }
+          cfg_saltversion: { get_param: cfg_saltversion }

@@ -67,7 +67,7 @@ parameters:
     default: 'nightly'
   cfg_saltversion:
     type: string
-    default: "stable 2016.3"
+#    default: "stable 2016.3"
 
 resources:
   instance_port01:
