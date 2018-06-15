@@ -68,7 +68,7 @@ node(slave_node) {
             momBuild = build job: deployMoMJob, propagate: false, parameters: [
                 [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: 'testing'],
                 [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: 'virtual-mcp11-aio'],
-                [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'mom'],
+                [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'core'],
                 [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: STACK_DELETE.toBoolean()],
                 [$class: 'StringParameterValue', name: 'STACK_RECLASS_ADDRESS', value: 'https://gerrit.mcp.mirantis.net/salt-models/mcp-virtual-aio'],
                 [$class: 'StringParameterValue', name: 'STACK_RECLASS_BRANCH', value: "stable/queens"],
@@ -77,6 +77,8 @@ node(slave_node) {
                 [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: 'https://github.com/ohryhorov/salt-syndic-master'],
                 [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
                 [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: 'virtual_edge_mom'],
+                [$class: 'StringParameterValue', name: 'STACK_TEST', value: ''],
+                [$class: 'BooleanParameterValue', name: 'TEST_DOCKER_INSTALL', value: false],
                 [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: slave_node],
             ]
 
@@ -85,7 +87,7 @@ node(slave_node) {
                 salt_mom_url = "http://${momBuild.description.tokenize(' ')[1]}:6969"
                 node_name = "${momBuild.description.tokenize(' ')[2]}"
                 salt_overrides_list.add("salt_syndic_master_address: ${momBuild.description.tokenize(' ')[1]}")
-                common.infoMsg("Salt API is accessible via ${salt_master_url}")
+                common.infoMsg("Salt API is accessible via ${salt_mom_url}")
             } else {
                 common.errorMsg("Deployment of MoM has been failed with result: " + momBuild.result)
 
@@ -104,10 +106,10 @@ node(slave_node) {
 
                 props = edge_deploy_schemas[edge_deploy_schema]['properties']
 
-/*                for (prop in edge_deploy_schemas[edge_deploy_schema]['properties'].keySet()) {
-                    common.infoMsg("prop: ${prop} value: ${edge_deploy_schemas[edge_deploy_schema]['properties'][prop]}")
-                }
-*/
+//                for (prop in edge_deploy_schemas[edge_deploy_schema]['properties'].keySet()) {
+//                    common.infoMsg("prop: ${prop} value: ${edge_deploy_schemas[edge_deploy_schema]['properties'][prop]}")
+//                }
+
                 deploy_edges_infra["Deploy ${edge_deploy_schema} infra"] = {
                     node(slave_node) {
                         edgeBuilds["${edge_deploy_schema}-${props['STACK_TEMPLATE']}"] = build job: deploy_job, propagate: false, parameters: [
@@ -121,6 +123,8 @@ node(slave_node) {
                             [$class: 'StringParameterValue', name: 'STACK_TYPE', value: props['STACK_TYPE']],
                             [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props['FORMULA_PKG_REVISION']],
                             [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: props['STACK_CLUSTER_NAME']],
+                            [$class: 'StringParameterValue', name: 'STACK_TEST', value: ''],
+                            [$class: 'BooleanParameterValue', name: 'TEST_DOCKER_INSTALL', value: false],
                             [$class: 'TextParameterValue', name: 'SALT_OVERRIDES', value: salt_overrides_list.join('\n')],
                             [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: props['STACK_DELETE'].toBoolean()],
                         ]
@@ -133,16 +137,15 @@ node(slave_node) {
             for (k in deploy_edges_infra.keySet()) {
 //                if (deploy_edges_infra[k].result == 'SUCCESS') {
                     common.infoMsg("${deploy_edges_infra[k]} ${deploy_edges_infra[k].description.tokenize(' ')[1]}")
-/*                    deploy_edges["${deploy_edges_infra[k]} with MoM"] = {
-                        node(slave_node) {
-                        
-                        }
-                    }
-*/
-/*                } else {
-                    common.successMsg("${k} : " + testBuilds[k].result)
-                    common.errorMsg("${k} : " + testBuilds[k].result)
-                } */
+//                    deploy_edges["${deploy_edges_infra[k]} with MoM"] = {
+//                        node(slave_node) {
+//                        }
+//                    }
+//
+//                } else {
+//                    common.successMsg("${k} : " + testBuilds[k].result)
+//                    common.errorMsg("${k} : " + testBuilds[k].result)
+//                }
             }
 
         }
