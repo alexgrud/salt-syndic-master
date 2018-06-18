@@ -98,6 +98,7 @@ node(slave_node) {
             for (edge_deploy_schema in edge_deploy_schemas.keySet()) {
                 def deploy_job
                 def props
+                def stack_name
 
                 deploy_job = edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']
 
@@ -110,6 +111,14 @@ node(slave_node) {
 //                    common.infoMsg("prop: ${prop} value: ${edge_deploy_schemas[edge_deploy_schema]['properties'][prop]}")
 //                }
 
+                if (env.BUILD_USER_ID) {
+                    stack_name = "${env.BUILD_USER_ID}-${edge_deploy_schema}-${BUILD_NUMBER}"
+                } else {
+                    STACK_NAME = "replayed-${edge_deploy_schema}-${BUILD_NUMBER}"
+                }
+
+                salt_overrides_list.add("salt_syndic_enabled: true")
+
                 deploy_edges_infra["Deploy ${edge_deploy_schema} infra"] = {
                     node(slave_node) {
                         edgeBuilds["${edge_deploy_schema}-${props['STACK_TEMPLATE']}"] = build job: deploy_job, propagate: false, parameters: [
@@ -117,6 +126,7 @@ node(slave_node) {
                             [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: OPENSTACK_API_PROJECT],
                             [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: props['SLAVE_NODE']],
                             [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'core'],
+                            [$class: 'StringParameterValue', name: 'STACK_NAME', value: stack_name],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: props['STACK_TEMPLATE']],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: 'https://github.com/ohryhorov/salt-syndic-master'],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
@@ -135,17 +145,18 @@ node(slave_node) {
             parallel deploy_edges_infra
 
             for (k in deploy_edges_infra.keySet()) {
-//                if (deploy_edges_infra[k].result == 'SUCCESS') {
-                    common.infoMsg("${deploy_edges_infra[k]} ${deploy_edges_infra[k].description.tokenize(' ')[1]}")
-//                    deploy_edges["${deploy_edges_infra[k]} with MoM"] = {
-//                        node(slave_node) {
-//                        }
-//                    }
-//
-//                } else {
-//                    common.successMsg("${k} : " + testBuilds[k].result)
-//                    common.errorMsg("${k} : " + testBuilds[k].result)
-//                }
+                if (deploy_edges_infra[k].result) {
+                    if (deploy_edges_infra[k].result == 'SUCCESS') {
+                        common.infoMsg("${deploy_edges_infra[k]} ${deploy_edges_infra[k].description.tokenize(' ')[1]}")
+//                        deploy_edges["${deploy_edges_infra[k]} with MoM"] = {
+//                                node(slave_node) {
+//                                }
+//                      }
+                    } else {
+                        common.successMsg("${k} : " + deploy_edges_infra[k].result)
+                        common.errorMsg("${k} : " + deploy_edges_infra[k].result)
+                    }
+                }
             }
 
         }
