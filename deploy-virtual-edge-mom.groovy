@@ -37,6 +37,7 @@ node(slave_node) {
     def salt_mom_url
     def deploy_edges_infra = [:]
     def deploy_edges = [:]
+    def edgeBuildsInfra = [:]
     def edgeBuilds = [:]
 
     def OPENSTACK_API_PROJECT = 'mcp-oscore-ci'
@@ -59,12 +60,12 @@ node(slave_node) {
         }
     }
 */
-    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico-syndic"}} }'
+    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SALT_MASTER_URL: "http://172.17.49.56:6969", SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SALT_MASTER_URL: "http://172.17.49.52:6969", SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico-syndic"}} }'
 
     def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
-    try {
-        stage('Deploy MoM stack'){
+//    try {
+/*        stage('Deploy MoM stack'){
             momBuild = build job: deployMoMJob, propagate: false, parameters: [
                 [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: 'testing'],
                 [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: 'virtual-mcp11-aio'],
@@ -88,17 +89,20 @@ node(slave_node) {
                 node_name = "${momBuild.description.tokenize(' ')[2]}"
                 salt_overrides_list.add("salt_syndic_master_address: ${momBuild.description.tokenize(' ')[1]}")
                 common.infoMsg("Salt API is accessible via ${salt_mom_url}")
+                common.infoMsg("Enabling salt_syndic_enabled through overrides")
+                salt_overrides_list.add("salt_syndic_enabled: true")
             } else {
                 common.errorMsg("Deployment of MoM has been failed with result: " + momBuild.result)
 
             }
 
-        }
+        } */
         stage('Deploy edge clouds'){
             for (edge_deploy_schema in edge_deploy_schemas.keySet()) {
-                def deploy_job
                 def props
+                def deploy_job
                 def stack_name
+                def ed = edge_deploy_schema
 
                 deploy_job = edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']
 
@@ -114,23 +118,21 @@ node(slave_node) {
                 if (env.BUILD_USER_ID) {
                     stack_name = "${env.BUILD_USER_ID}-${edge_deploy_schema}-${BUILD_NUMBER}"
                 } else {
-                    STACK_NAME = "replayed-${edge_deploy_schema}-${BUILD_NUMBER}"
+                    stack_name = "replayed-${edge_deploy_schema}-${BUILD_NUMBER}"
                 }
-
-                salt_overrides_list.add("salt_syndic_enabled: true")
-
-                deploy_edges_infra["Deploy ${edge_deploy_schema} infra"] = {
+                deploy_edges_infra["Deploy ${ed} infra"] = {
                     node(slave_node) {
-                        edgeBuilds["${edge_deploy_schema}-${props['STACK_TEMPLATE']}"] = build job: deploy_job, propagate: false, parameters: [
+                        edgeBuildsInfra["${ed}"] = build job: deploy_job, propagate: false, parameters: [
                             [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: HEAT_STACK_ZONE],
                             [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: OPENSTACK_API_PROJECT],
                             [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: props['SLAVE_NODE']],
-                            [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'core'],
+                            [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'mom'],
                             [$class: 'StringParameterValue', name: 'STACK_NAME', value: stack_name],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: props['STACK_TEMPLATE']],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: 'https://github.com/ohryhorov/salt-syndic-master'],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
-                            [$class: 'StringParameterValue', name: 'STACK_TYPE', value: props['STACK_TYPE']],
+                            [$class: 'StringParameterValue', name: 'STACK_TYPE', value: 'physical'],
+                            [$class: 'StringParameterValue', name: 'SALT_MASTER_URL', value: props['SALT_MASTER_URL']],
                             [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props['FORMULA_PKG_REVISION']],
                             [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: props['STACK_CLUSTER_NAME']],
                             [$class: 'StringParameterValue', name: 'STACK_TEST', value: ''],
@@ -144,28 +146,63 @@ node(slave_node) {
 
             parallel deploy_edges_infra
 
-            for (k in deploy_edges_infra.keySet()) {
-                if (deploy_edges_infra[k].result) {
-                    if (deploy_edges_infra[k].result == 'SUCCESS') {
-                        common.infoMsg("${deploy_edges_infra[k]} ${deploy_edges_infra[k].description.tokenize(' ')[1]}")
+            for (k in edgeBuildsInfra.keySet()) {
+                common.infoMsg("keyset1: ${[k]}")
+                def ed_ = k
+                def deploy_job
+                def props_
+                def current_salt_ip
+                def extra_target
+
+                if (edgeBuildsInfra[ed_].result == 'SUCCESS') {
+                    extra_target = "*${edgeBuildsInfra[ed_].description.tokenize(' ')[0]}"
+//                    current_salt_ip = edgeBuildsInfra[ed_].description.tokenize(' ')[1]
+
+                    props_ = edge_deploy_schemas[ed_]['properties']
+                    deploy_job = edge_deploy_schemas[ed_]['deploy_job_name']
+
+                    deploy_edges["Deploy ${ed_} with MoM"] = {
+                       node(slave_node) {
+                            edgeBuilds["${ed_}"] = build job: deploy_job, propagate: false, parameters: [
+                                [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: HEAT_STACK_ZONE],
+                                [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: OPENSTACK_API_PROJECT],
+                                [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: props_['SLAVE_NODE']],
+                                [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: props_['STACK_INSTALL']],
+                                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: props_['STACK_TEMPLATE']],
+                                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: 'https://github.com/ohryhorov/salt-syndic-master'],
+                                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
+                                [$class: 'StringParameterValue', name: 'STACK_TYPE', value: 'physical'],
+                                [$class: 'StringParameterValue', name: 'SALT_MASTER_URL', value: salt_mom_url],
+                                [$class: 'StringParameterValue', name: 'EXTRA_TARGET', value: extra_target],
+                                [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props_['FORMULA_PKG_REVISION']],
+                                [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: props_['STACK_CLUSTER_NAME']],
+                                [$class: 'StringParameterValue', name: 'STACK_TEST', value: ''],
+                                [$class: 'BooleanParameterValue', name: 'TEST_DOCKER_INSTALL', value: false],
+                                [$class: 'TextParameterValue', name: 'SALT_OVERRIDES', value: salt_overrides_list.join('\n')],
+                                [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: props_['STACK_DELETE'].toBoolean()],
+                            ]
+                        }
+                    }
+//                        common.infoMsg("${edgeBuildsInfra[k].description.tokenize(' ')[0]} ${edgeBuildsInfra[k].description.tokenize(' ')[1]}")
 //                        deploy_edges["${deploy_edges_infra[k]} with MoM"] = {
 //                                node(slave_node) {
 //                                }
 //                      }
-                    } else {
-                        common.successMsg("${k} : " + deploy_edges_infra[k].result)
-                        common.errorMsg("${k} : " + deploy_edges_infra[k].result)
-                    }
+                } else {
+                    common.successMsg("${k} : " + edgeBuilds[k].result)
+                    common.errorMsg("${k} : " + edgeBuilds[k].result)
                 }
             }
 
+            parallel deploy_edges
+
         }
 
-    } catch (Exception e) {
-        currentBuild.result = 'FAILURE'
-        throw e
-    } finally {
+//    } catch (Exception e) {
+//        currentBuild.result = 'FAILURE'
+//        throw e
+//    } finally {
 // Finally stage
 
-    }
+//    }
 }
