@@ -155,11 +155,20 @@ node(slave_node) {
                 def extra_target
 
                 if (edgeBuildsInfra[ed_].result == 'SUCCESS') {
-                    extra_target = "*${edgeBuildsInfra[ed_].description.tokenize(' ')[0]}"
+//                    extra_target = "and *jopa"
+                    extra_target = "and *${edgeBuildsInfra[ed_].description.tokenize(' ')[0]}"
 //                    current_salt_ip = edgeBuildsInfra[ed_].description.tokenize(' ')[1]
 
                     props_ = edge_deploy_schemas[ed_]['properties']
                     deploy_job = edge_deploy_schemas[ed_]['deploy_job_name']
+
+
+//
+// XXX
+//
+//                    salt_mom_url = "http://172.17.53.1:6969"
+
+
 
                     deploy_edges["Deploy ${ed_} with MoM"] = {
                        node(slave_node) {
