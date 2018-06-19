@@ -66,7 +66,7 @@ node(slave_node) {
     def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
 //    try {
-/*        stage('Deploy MoM stack'){
+        stage('Deploy MoM stack'){
             momBuild = build job: deployMoMJob, propagate: false, parameters: [
                 [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: 'testing'],
                 [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: 'virtual-mcp11-aio'],
@@ -97,7 +97,7 @@ node(slave_node) {
 
             }
 
-        } */
+        } 
         stage('Deploy edge clouds'){
             for (edge_deploy_schema in edge_deploy_schemas.keySet()) {
                 def props
@@ -132,8 +132,7 @@ node(slave_node) {
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: props['STACK_TEMPLATE']],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: 'https://github.com/ohryhorov/salt-syndic-master'],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
-                            [$class: 'StringParameterValue', name: 'STACK_TYPE', value: 'physical'],
-                            [$class: 'StringParameterValue', name: 'SALT_MASTER_URL', value: props['SALT_MASTER_URL']],
+                            [$class: 'StringParameterValue', name: 'STACK_TYPE', value: 'heat'],
                             [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props['FORMULA_PKG_REVISION']],
                             [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: props['STACK_CLUSTER_NAME']],
                             [$class: 'StringParameterValue', name: 'STACK_TEST', value: ''],
