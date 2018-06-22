@@ -174,7 +174,7 @@ node(slave_node) {
                             [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props['FORMULA_PKG_REVISION']],
                             [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: props['STACK_CLUSTER_NAME']],
                             [$class: 'StringParameterValue', name: 'STACK_TEST', value: ''],
-                            [$class: 'StringParameterValue', name: 'SALT_VERSION', value: ''],                            
+                            [$class: 'StringParameterValue', name: 'SALT_VERSION', value: 'stable 2017.7'],                            
                             [$class: 'BooleanParameterValue', name: 'TEST_DOCKER_INSTALL', value: false],
                             [$class: 'TextParameterValue', name: 'SALT_OVERRIDES', value: salt_overrides_list.join('\n')],
                             [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: props['STACK_DELETE'].toBoolean()],
