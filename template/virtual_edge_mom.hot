@@ -25,7 +25,6 @@ parameters:
   cfg_reclass_address:
     type: string
     default: https://gerrit.mcp.mirantis.net/salt-models/mcp-virtual-aio
-#    default: https://gerrit.mcp.mirantis.net/salt-models/mcp-virtual-lab
   cfg_reclass_branch:
     type: string
     default: stable/queens
