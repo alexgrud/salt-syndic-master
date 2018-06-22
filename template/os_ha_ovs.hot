@@ -157,7 +157,7 @@ resources:
       instance_image: ubuntu-16-04-amd64-cloudimg
       instance_flavor: os_ha_ctl
       instance_config_host: { get_attr: [mcp_salt_master, instance_address] }
-      cfg_saltversion: { get_param: cfg_saltversion }
+#      cfg_saltversion: { get_param: cfg_saltversion }
       instance_cloud_init: |
         # todo
   mcp_os_gateway:
@@ -210,7 +210,7 @@ resources:
       instance_image: ubuntu-16-04-amd64-cloudimg
       instance_flavor: os_cmp_small
       instance_config_host: { get_attr: [mcp_salt_master, instance_address] }
-      cfg_saltversion: { get_param: cfg_saltversion }
+#      cfg_saltversion: { get_param: cfg_saltversion }
       instance_cloud_init: |
         # todo
 
