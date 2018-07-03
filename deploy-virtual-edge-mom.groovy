@@ -94,13 +94,15 @@ node(slave_node) {
 */
 //    def EDGE_DEPLOY_SCHEMAS = '{k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, EXT: "and *ohryhorov-deploy-heat-k8s-ha-calico-59*", STACK_CLUSTER_NAME: "k8s-ha-calico"}} }'
 
-//    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico"}} }'
-
-    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SALT_MASTER_URL: "http://172.17.49.56:6969", SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SALT_MASTER_URL: "http://172.17.49.52:6969", SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico-syndic"}} }'
+    //def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico"}} }'
+    //only os_ha_ovs, temporary!!!!!!!!!!!!!
+    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs"}}}'
+//    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SALT_MASTER_URL: "http://172.17.49.56:6969", SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SALT_MASTER_URL: "http://172.17.49.52:6969", SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico-syndic"}} }'
 
     def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
     //try {
+        /*
         stage('Deploy MoM stack'){
             momBuild = build job: deployMoMJob, propagate: true, parameters: [
                 [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: FORMULA_PKG_REVISION],
@@ -129,11 +131,12 @@ node(slave_node) {
                 common.infoMsg("Enabling salt_syndic_enabled through overrides")
                 salt_overrides_list.add("salt_syndic_enabled: true")
             } else {
-                common.errorMsg("Deployment of MoM has been failed with result: " + momBuild.result)
+                common.errorMsg("Deployment of MoM has failed with result: " + momBuild.result)
 
             }
 
         }
+        */
         stage('Deploy edge clouds'){
             salt_overrides_list.add("salt_syndic_enabled: true")
           //  salt_overrides_list.add("salt_syndic_master_address: 172.17.48.208")
@@ -146,8 +149,8 @@ node(slave_node) {
 
                 deploy_job = edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']
 
-                common.infoMsg("edge cloud: ${edge_deploy_schema}")
-                common.infoMsg("deploy job name: ${edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']}")
+                common.infoMsg("Edge cloud: ${edge_deploy_schema}")
+                common.infoMsg("Deploy job name: ${edge_deploy_schemas[edge_deploy_schema]['deploy_job_name']}")
 
                 props = edge_deploy_schemas[edge_deploy_schema]['properties']
 
@@ -191,18 +194,18 @@ node(slave_node) {
                 def ed_ = k
                 def deploy_job
                 def props_
-                def current_salt_ip
+ //               def current_salt_ip
                 def extra_target
                 def saltMasterURL
 
                 if (edgeBuildsInfra[ed_].result == 'SUCCESS') {
-//                    extra_target = "and *jopa"
                     extra_target = "and *${edgeBuildsInfra[ed_].description.tokenize(' ')[0]}*"
 //                    current_salt_ip = edgeBuildsInfra[ed_].description.tokenize(' ')[1]
                     saltMasterURL = "http://${edgeBuildsInfra[ed_].description.tokenize(' ')[1]}:6969"
 
-                    //salt_mom_ip = "172.17.48.208"
-                    //salt_mom_url = "http://172.17.48.208:6969"
+                    //temporary!!!!!!!!!!!!!
+                    salt_mom_ip = "172.17.52.123"
+                    salt_mom_url = "http://172.17.52.123:6969"
 
                     enableSyndic(saltMasterURL, 'cfg01*', SALT_MASTER_CREDENTIALS, salt_mom_ip)
 
