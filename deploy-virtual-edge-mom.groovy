@@ -1,23 +1,24 @@
-/*
-    {
-        edge_cloud: {
-            deploy_job_name: 'Deploy - os_ha_ovs heat',
-            properties: {
-                SLAVE_NODE: '',
-                STACK_INSTALL: '',
-                STACK_TEMPLATE: '',
-                STACK_TYPE: ''
-            }
-        }
-    }
-
- * OPENSTACK_API_PROJECT:
- * HEAT_STACK_ZONE:
+/**
  *
+ * Deploy Master of Masters and edge clouds
+ *
+ * Expected parameters:
+ *   FORMULA_PKG_REVISION       Formula revision
+ *   STACK_CLUSTER_NAME         The name of cluster model to use           
+ *   STACK_RECLASS_ADDRESS
+ *   STACK_RECLASS_BRANCH
+ *   OPENSTACK_API_PROJECT
+ *   HEAT_STACK_ZONE
+ *   STACK_TEMPLATE_URL
+ *   STACK_TEMPLATE_BRANCH
+ *   STACK_TEMPLATE
+ *   STACK_TEST
  */
 
 common = new com.mirantis.mk.Common()
 salt = new com.mirantis.mk.Salt()
+
+
 
 def slave_node = 'python'
 
@@ -71,8 +72,8 @@ node(slave_node) {
     def edgeBuildsInfra = [:]
     def edgeBuilds = [:]
 
-    def OPENSTACK_API_PROJECT = 'mcp-oscore-ci'
-    def HEAT_STACK_ZONE = 'mcp-oscore-ci'
+    //def OPENSTACK_API_PROJECT = 'mcp-oscore-ci'
+    //def HEAT_STACK_ZONE = 'mcp-oscore-ci'
 
 /*    {
         edge_cloud: {
@@ -93,27 +94,27 @@ node(slave_node) {
 */
 //    def EDGE_DEPLOY_SCHEMAS = '{k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, EXT: "and *ohryhorov-deploy-heat-k8s-ha-calico-59*", STACK_CLUSTER_NAME: "k8s-ha-calico"}} }'
 
-    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico"}} }'
+//    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico"}} }'
 
-//    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SALT_MASTER_URL: "http://172.17.49.56:6969", SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SALT_MASTER_URL: "http://172.17.49.52:6969", SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico-syndic"}} }'
+    def EDGE_DEPLOY_SCHEMAS = '{os_ha_ovs: {deploy_job_name: "deploy-heat-os_ha_ovs", properties: {SALT_MASTER_URL: "http://172.17.49.56:6969", SLAVE_NODE: "python", STACK_INSTALL: "openstack,ovs", STACK_TEMPLATE: "os_ha_ovs", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "os-ha-ovs-syndic"}}, k8s_ha_calico: {deploy_job_name: "deploy-heat-k8s_ha_calico", properties: {SALT_MASTER_URL: "http://172.17.49.52:6969", SLAVE_NODE: "python", STACK_INSTALL: "k8s,calico", STACK_TEMPLATE: "k8s_ha_calico", STACK_TYPE: "heat", FORMULA_PKG_REVISION: "testing", STACK_DELETE: false, STACK_CLUSTER_NAME: "k8s-ha-calico-syndic"}} }'
 
     def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
-//    try {
-/*        stage('Deploy MoM stack'){
+    try {
+        stage('Deploy MoM stack'){
             momBuild = build job: deployMoMJob, propagate: true, parameters: [
-                [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: 'testing'],
-                [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: 'virtual-mcp11-aio'],
+                [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: ${FORMULA_PKG_REVISION}],
+                [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: ${STACK_CLUSTER_NAME}],
                 [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'core'],
                 [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: STACK_DELETE.toBoolean()],
-                [$class: 'StringParameterValue', name: 'STACK_RECLASS_ADDRESS', value: 'https://gerrit.mcp.mirantis.net/salt-models/mcp-virtual-aio'],
-                [$class: 'StringParameterValue', name: 'STACK_RECLASS_BRANCH', value: "stable/queens"],
-                [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: 'mcp-oscore'],
-                [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: 'mcp-oscore'],
-                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: 'https://github.com/ohryhorov/salt-syndic-master'],
-                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
-                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: 'virtual_edge_mom'],
-                [$class: 'StringParameterValue', name: 'STACK_TEST', value: ''],
+                [$class: 'StringParameterValue', name: 'STACK_RECLASS_ADDRESS', value: ${STACK_RECLASS_ADDRESS}],
+                [$class: 'StringParameterValue', name: 'STACK_RECLASS_BRANCH', value: ${STACK_RECLASS_BRANCH}],
+                [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: ${OPENSTACK_API_PROJECT}],
+                [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: ${HEAT_STACK_ZONE}],
+                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: ${STACK_TEMPLATE_URL}],
+                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: ${STACK_TEMPLATE_BRANCH}],
+                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: ${STACK_TEMPLATE}],
+                [$class: 'StringParameterValue', name: 'STACK_TEST', value: ${STACK_TEST}],
                 [$class: 'BooleanParameterValue', name: 'TEST_DOCKER_INSTALL', value: false],
                 [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: slave_node],
             ]
@@ -132,10 +133,10 @@ node(slave_node) {
 
             }
 
-        } */
+        } 
         stage('Deploy edge clouds'){
             salt_overrides_list.add("salt_syndic_enabled: true")
-            salt_overrides_list.add("salt_syndic_master_address: 172.17.48.208")
+          //  salt_overrides_list.add("salt_syndic_master_address: 172.17.48.208")
 
             for (edge_deploy_schema in edge_deploy_schemas.keySet()) {
                 def props
@@ -200,8 +201,8 @@ node(slave_node) {
 //                    current_salt_ip = edgeBuildsInfra[ed_].description.tokenize(' ')[1]
                     saltMasterURL = "http://${edgeBuildsInfra[ed_].description.tokenize(' ')[1]}:6969"
 
-                    salt_mom_ip = "172.17.48.208"
-                    salt_mom_url = "http://172.17.48.208:6969"
+                    //salt_mom_ip = "172.17.48.208"
+                    //salt_mom_url = "http://172.17.48.208:6969"
 
                     enableSyndic(saltMasterURL, 'cfg01*', SALT_MASTER_CREDENTIALS, salt_mom_ip)
 
