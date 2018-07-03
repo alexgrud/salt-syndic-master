@@ -100,7 +100,7 @@ node(slave_node) {
 
     def edge_deploy_schemas = readJSON text: EDGE_DEPLOY_SCHEMAS
 
-    try {
+    //try {
         stage('Deploy MoM stack'){
             momBuild = build job: deployMoMJob, propagate: true, parameters: [
                 [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: ${FORMULA_PKG_REVISION}],
@@ -133,7 +133,7 @@ node(slave_node) {
 
             }
 
-        } 
+        }
         stage('Deploy edge clouds'){
             salt_overrides_list.add("salt_syndic_enabled: true")
           //  salt_overrides_list.add("salt_syndic_master_address: 172.17.48.208")
