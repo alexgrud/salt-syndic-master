@@ -103,18 +103,18 @@ node(slave_node) {
     //try {
         stage('Deploy MoM stack'){
             momBuild = build job: deployMoMJob, propagate: true, parameters: [
-                [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: ${FORMULA_PKG_REVISION}],
-                [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: ${STACK_CLUSTER_NAME}],
+                [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: FORMULA_PKG_REVISION],
+                [$class: 'StringParameterValue', name: 'STACK_CLUSTER_NAME', value: STACK_CLUSTER_NAME],
                 [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'core'],
                 [$class: 'BooleanParameterValue', name: 'STACK_DELETE', value: STACK_DELETE.toBoolean()],
-                [$class: 'StringParameterValue', name: 'STACK_RECLASS_ADDRESS', value: ${STACK_RECLASS_ADDRESS}],
-                [$class: 'StringParameterValue', name: 'STACK_RECLASS_BRANCH', value: ${STACK_RECLASS_BRANCH}],
-                [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: ${OPENSTACK_API_PROJECT}],
-                [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: ${HEAT_STACK_ZONE}],
-                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: ${STACK_TEMPLATE_URL}],
-                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: ${STACK_TEMPLATE_BRANCH}],
-                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: ${STACK_TEMPLATE}],
-                [$class: 'StringParameterValue', name: 'STACK_TEST', value: ${STACK_TEST}],
+                [$class: 'StringParameterValue', name: 'STACK_RECLASS_ADDRESS', value: STACK_RECLASS_ADDRESS],
+                [$class: 'StringParameterValue', name: 'STACK_RECLASS_BRANCH', value: STACK_RECLASS_BRANCH],
+                [$class: 'StringParameterValue', name: 'OPENSTACK_API_PROJECT', value: OPENSTACK_API_PROJECT],
+                [$class: 'StringParameterValue', name: 'HEAT_STACK_ZONE', value: HEAT_STACK_ZONE],
+                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: STACK_TEMPLATE_URL],
+                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: STACK_TEMPLATE_BRANCH],
+                [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: STACK_TEMPLATE],
+                [$class: 'StringParameterValue', name: 'STACK_TEST', value: STACK_TEST],
                 [$class: 'BooleanParameterValue', name: 'TEST_DOCKER_INSTALL', value: false],
                 [$class: 'StringParameterValue', name: 'SLAVE_NODE', value: slave_node],
             ]
