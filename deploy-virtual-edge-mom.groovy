@@ -146,7 +146,7 @@ node(slave_node) {
                             [$class: 'StringParameterValue', name: 'STACK_INSTALL', value: 'core'],
                             [$class: 'StringParameterValue', name: 'STACK_NAME', value: stack_name],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE', value: props['STACK_TEMPLATE']],
-                            [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', vaue: STACK_TEMPLATE_URL],
+                            [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_URL', value: STACK_TEMPLATE_URL],
                             [$class: 'StringParameterValue', name: 'STACK_TEMPLATE_BRANCH', value: 'master'],
                             [$class: 'StringParameterValue', name: 'STACK_TYPE', value: 'heat'],
                             [$class: 'StringParameterValue', name: 'FORMULA_PKG_REVISION', value: props['FORMULA_PKG_REVISION']],
